@@ -1546,7 +1546,6 @@ pack_server_keyindex_info(
         peer->info->peerid, job->nspace_id
     );
 
-
     pmix_kval_t kv;
     do {
         const int tabsize = dictionary_nelems(pmix_dictionary);
