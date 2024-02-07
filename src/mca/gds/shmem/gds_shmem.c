@@ -19,7 +19,6 @@
 #include "gds_shmem_store.h"
 #include "gds_shmem_fetch.h"
 
-#include "pmix_common.h"
 #include "src/include/pmix_dictionary.h"
 
 #include "src/util/pmix_show_help.h"
@@ -28,7 +27,6 @@
 
 #include "src/client/pmix_client_ops.h"
 #include "src/server/pmix_server_ops.h"
-#include <stddef.h>
 
 //
 // Notes for developers:
@@ -1525,6 +1523,15 @@ out:
     return rc;
 }
 
+static inline int
+dictionary_nelems(
+    const pmix_regattr_input_t *dict
+) {
+    int i = 0;
+    for ( ; UINT32_MAX != dict[i].index; ++i) { }
+    return i;
+}
+
 static inline pmix_status_t
 pack_server_keyindex_info(
     pmix_gds_shmem_job_t *job,
@@ -1539,13 +1546,10 @@ pack_server_keyindex_info(
         peer->info->peerid, job->nspace_id
     );
 
-    // Count the number of valid elements in the dictionary.
-    int tabsize = 0;
-    for (int i = 0; UINT32_MAX != pmix_dictionary[i].index; ++i, ++tabsize) { }
 
     pmix_kval_t kv;
     do {
-        //const int tabsize = pmix_globals.keyindex.table->size;
+        const int tabsize = dictionary_nelems(pmix_dictionary);
         // First, pack the size of the server's keyindex table.
         PMIX_CONSTRUCT(&kv, pmix_kval_t);
         kv.key = strdup(SHMEM_SVR_KIDX_TAB_SIZE_KEY);
